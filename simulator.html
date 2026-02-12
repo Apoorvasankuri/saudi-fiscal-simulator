@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Saudi Fiscal Oil Sensitivity Simulator · 2025E–2030F</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f7f7f5;--card:#ffffff;--border:#e4e2dd;--text:#1a1a1a;--muted:#7a7568;
+  --green-soft:#e8f5e9;--green:#2e7d32;--red-soft:#fce4ec;--red:#c62828;
+  --accent:#0d6e3f;--accent-light:#e6f2ec;--gold:#b8860b;--gold-light:#fdf6e3;
+  --shadow:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  --shadow-lg:0 4px 16px rgba(0,0,0,.08);
+  --radius:10px;
+}
+html{font-size:14px}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);line-height:1.5;min-height:100vh}
+
+/* HEADER */
+.header{
+  background:#fff;border-bottom:1px solid var(--border);padding:20px 32px;
+  display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;
+}
+.header-left{display:flex;align-items:center;gap:14px}
+.logo-mark{
+  width:40px;height:40px;border-radius:8px;
+  background:linear-gradient(135deg,var(--accent),#1b9e5a);
+  display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:18px;
+}
+.header h1{font-family:'Instrument Serif',serif;font-size:1.55rem;font-weight:400;letter-spacing:-.01em}
+.header-badge{
+  font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;
+  background:var(--gold-light);color:var(--gold);padding:4px 10px;border-radius:20px;
+}
+
+/* LAYOUT */
+.app{display:grid;grid-template-columns:320px 1fr 260px;gap:0;min-height:calc(100vh - 82px)}
+@media(max-width:1200px){.app{grid-template-columns:1fr;}}
+
+/* PANELS */
+.panel{padding:24px;overflow-y:auto}
+.panel-left{background:#fff;border-right:1px solid var(--border)}
+.panel-right{background:var(--gold-light);border-left:1px solid var(--border)}
+.panel-center{background:var(--bg);padding:24px 28px}
+
+.section-title{
+  font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;
+  color:var(--muted);margin-bottom:12px;display:flex;align-items:center;gap:6px;
+}
+.section-title::before{content:'';width:3px;height:14px;border-radius:2px;background:var(--accent)}
+
+/* INPUT GROUPS */
+.input-group{margin-bottom:20px}
+.input-group label{display:block;font-size:.78rem;font-weight:600;margin-bottom:6px;color:var(--text)}
+.input-group .hint{font-size:.68rem;color:var(--muted);margin-bottom:6px}
+.year-inputs{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.year-input{display:flex;flex-direction:column;gap:2px}
+.year-input span{font-size:.62rem;color:var(--muted);text-align:center;font-weight:600}
+.year-input input{
+  width:100%;text-align:center;padding:7px 4px;border:1px solid var(--border);
+  border-radius:6px;font-size:.82rem;font-family:inherit;background:#fafaf8;
+  transition:border .2s,box-shadow .2s;
+}
+.year-input input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-light)}
+
+.single-input input, .single-input select{
+  width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:6px;
+  font-size:.85rem;font-family:inherit;background:#fafaf8;
+}
+.single-input input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-light)}
+
+.btn-calc{
+  width:100%;padding:12px;border:none;border-radius:8px;cursor:pointer;
+  background:linear-gradient(135deg,var(--accent),#1b9e5a);color:#fff;
+  font-family:inherit;font-size:.88rem;font-weight:600;letter-spacing:.02em;
+  transition:transform .15s,box-shadow .15s;margin-top:8px;
+}
+.btn-calc:hover{transform:translateY(-1px);box-shadow:var(--shadow-lg)}
+.btn-calc:active{transform:translateY(0)}
+
+.btn-reset{
+  width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;cursor:pointer;
+  background:#fff;color:var(--muted);font-family:inherit;font-size:.78rem;font-weight:500;
+  margin-top:6px;transition:background .15s;
+}
+.btn-reset:hover{background:var(--bg)}
+
+/* TABLE */
+.table-wrap{
+  background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);
+  overflow-x:auto;margin-bottom:24px;border:1px solid var(--border);
+}
+table{width:100%;border-collapse:collapse;font-size:.8rem}
+thead th{
+  background:#fafaf8;padding:10px 12px;text-align:right;font-weight:600;
+  border-bottom:2px solid var(--border);color:var(--muted);font-size:.7rem;
+  text-transform:uppercase;letter-spacing:.06em;white-space:nowrap;
+}
+thead th:first-child{text-align:center}
+tbody td{padding:10px 12px;text-align:right;border-bottom:1px solid #f0eeea;white-space:nowrap}
+tbody td:first-child{text-align:center;font-weight:600;color:var(--accent)}
+tbody tr:hover{background:#fafaf8}
+.deficit-pos{color:var(--green);font-weight:600}
+.deficit-neg{color:var(--red);font-weight:600}
+.debt-warn{background:var(--red-soft) !important}
+.debt-ok{background:var(--green-soft) !important}
+
+/* SENSITIVITY BAR */
+.sensitivity-bar{
+  background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);
+  padding:16px 20px;margin-bottom:24px;border:1px solid var(--border);
+  display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+}
+.sensitivity-bar .icon{font-size:1.4rem}
+.sensitivity-bar .text{font-size:.82rem;color:var(--text);line-height:1.5}
+.sensitivity-bar .text strong{color:var(--accent)}
+
+/* INSIGHTS */
+.insights-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-bottom:24px}
+.insight-card{
+  background:#fff;border:1px solid var(--border);border-radius:var(--radius);
+  padding:16px;box-shadow:var(--shadow);
+}
+.insight-card .label{font-size:.66rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:4px}
+.insight-card .value{font-size:1.3rem;font-weight:700;color:var(--text)}
+.insight-card .sub{font-size:.72rem;color:var(--muted);margin-top:2px}
+
+/* CHARTS */
+.charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:24px}
+@media(max-width:900px){.charts-grid{grid-template-columns:1fr}}
+.chart-card{
+  background:#fff;border:1px solid var(--border);border-radius:var(--radius);
+  padding:18px;box-shadow:var(--shadow);
+}
+.chart-card h3{font-size:.74rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:12px}
+.chart-card canvas{width:100%!important;height:260px!important}
+
+/* RIGHT PANEL */
+.ref-card{
+  background:#fff;border:1px solid #e0d9c8;border-radius:var(--radius);
+  padding:16px;margin-bottom:16px;
+}
+.ref-card h4{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--gold);margin-bottom:10px}
+.ref-row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #f0ead8;font-size:.78rem}
+.ref-row:last-child{border:none}
+.ref-row .rl{color:var(--muted)}
+.ref-row .rv{font-weight:600}
+
+.ref-note{font-size:.68rem;color:var(--muted);line-height:1.5;margin-top:12px;padding:10px;background:#fff;border-radius:8px;border:1px solid #e0d9c8}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-left">
+    <div class="logo-mark">FS</div>
+    <h1>Saudi Fiscal Oil Sensitivity Simulator</h1>
+  </div>
+  <div class="header-badge">2025E – 2030F</div>
+</div>
+
+<!-- APP -->
+<div class="app">
+
+  <!-- LEFT PANEL: INPUTS -->
+  <div class="panel panel-left">
+    <div class="section-title">Oil Price (USD/bbl)</div>
+    <div class="input-group">
+      <div class="year-inputs" id="oilPriceInputs"></div>
+    </div>
+
+    <div class="section-title">Production (bn bbl/yr)</div>
+    <div class="input-group">
+      <div class="year-inputs" id="prodInputs"></div>
+    </div>
+
+    <div class="section-title">Capex (SAR bn/yr)</div>
+    <div class="input-group">
+      <div class="year-inputs" id="capexInputs"></div>
+    </div>
+
+    <hr style="border:none;border-top:1px solid var(--border);margin:16px 0">
+
+    <div class="section-title">Growth Assumptions</div>
+
+    <div class="input-group single-input">
+      <label>Non-Oil Revenue Growth (%)</label>
+      <input type="number" id="nonOilGrowth" value="6" step="0.5">
+    </div>
+
+    <div class="input-group single-input">
+      <label>Expenditure Growth (%)</label>
+      <input type="number" id="expGrowth" value="0" step="0.5">
+    </div>
+
+    <div class="input-group single-input">
+      <label>Nominal GDP Growth (%)</label>
+      <input type="number" id="gdpGrowth" value="2.5" step="0.5">
+    </div>
+
+    <hr style="border:none;border-top:1px solid var(--border);margin:16px 0">
+
+    <div class="section-title">Starting Values (2025E)</div>
+
+    <div class="input-group single-input">
+      <label>Public Debt (SAR bn)</label>
+      <input type="number" id="startDebt" value="1540" step="10">
+    </div>
+
+    <div class="input-group single-input">
+      <label>Nominal GDP (SAR bn)</label>
+      <input type="number" id="startGDP" value="4620" step="10">
+    </div>
+
+    <button class="btn-calc" onclick="calculate()">▶ &nbsp;Run Simulation</button>
+    <button class="btn-reset" onclick="resetDefaults()">Reset to Defaults</button>
+  </div>
+
+  <!-- CENTER PANEL: OUTPUTS -->
+  <div class="panel panel-center">
+
+    <!-- Insight Cards -->
+    <div class="insights-grid" id="insightsGrid">
+      <div class="insight-card"><div class="label">Break-Even Oil Price</div><div class="value" id="insBreakeven">—</div><div class="sub">Price to balance budget (2026)</div></div>
+      <div class="insight-card"><div class="label">$1 Oil Sensitivity</div><div class="value" id="insSensitivity">—</div><div class="sub">SAR bn per $1 oil change</div></div>
+      <div class="insight-card"><div class="label">2030F Debt / GDP</div><div class="value" id="insDebtGDP">—</div><div class="sub">End-period ratio</div></div>
+      <div class="insight-card"><div class="label">Cumulative Deficit</div><div class="value" id="insCumDef">—</div><div class="sub">Total 2025–2030 (SAR bn)</div></div>
+    </div>
+
+    <!-- Sensitivity bar -->
+    <div class="sensitivity-bar" id="sensitivityBar">
+      <div class="icon">⛽</div>
+      <div class="text">Enter inputs and press <strong>Run Simulation</strong> to see results.</div>
+    </div>
+
+    <!-- Output Table -->
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Year</th><th>Oil Rev</th><th>Non-Oil Rev</th><th>Total Rev</th>
+            <th>Expenditure</th><th>Capex</th><th>Total Spend</th><th>Deficit</th>
+            <th>Debt</th><th>Debt/GDP</th>
+          </tr>
+        </thead>
+        <tbody id="outputBody">
+          <tr><td colspan="10" style="text-align:center;color:var(--muted);padding:32px">Run simulation to see projections</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Charts -->
+    <div class="charts-grid">
+      <div class="chart-card">
+        <h3>Revenue vs Total Spend (SAR bn)</h3>
+        <canvas id="chartRevExp"></canvas>
+      </div>
+      <div class="chart-card">
+        <h3>Debt / GDP Ratio (%)</h3>
+        <canvas id="chartDebtGDP"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL: REFERENCE -->
+  <div class="panel panel-right">
+    <div class="section-title" style="--accent:var(--gold)">FY26 Official Projections</div>
+
+    <div class="ref-card">
+      <h4>Budget 2026</h4>
+      <div class="ref-row"><span class="rl">Total Revenue</span><span class="rv">1,147 SAR bn</span></div>
+      <div class="ref-row"><span class="rl">Total Expenditure</span><span class="rv">1,313 SAR bn</span></div>
+      <div class="ref-row"><span class="rl">Fiscal Deficit</span><span class="rv">–165 SAR bn</span></div>
+      <div class="ref-row"><span class="rl">Deficit / GDP</span><span class="rv">~3.3%</span></div>
+    </div>
+
+    <div class="ref-card">
+      <h4>2025 Estimates</h4>
+      <div class="ref-row"><span class="rl">Total Revenue</span><span class="rv">1,091 SAR bn</span></div>
+      <div class="ref-row"><span class="rl">Oil Revenue</span><span class="rv">590 SAR bn</span></div>
+      <div class="ref-row"><span class="rl">Non-Oil Revenue</span><span class="rv">501 SAR bn</span></div>
+      <div class="ref-row"><span class="rl">Expenditure</span><span class="rv">1,336 SAR bn</span></div>
+      <div class="ref-row"><span class="rl">Deficit</span><span class="rv">–245 SAR bn</span></div>
+    </div>
+
+    <div class="ref-card">
+      <h4>Macro Anchors</h4>
+      <div class="ref-row"><span class="rl">GDP 2025E</span><span class="rv">4,620 SAR bn</span></div>
+      <div class="ref-row"><span class="rl">Debt 2025E</span><span class="rv">1,540 SAR bn</span></div>
+      <div class="ref-row"><span class="rl">Debt/GDP 2025E</span><span class="rv">~33%</span></div>
+      <div class="ref-row"><span class="rl">FX Rate</span><span class="rv">3.75 SAR/USD</span></div>
+      <div class="ref-row"><span class="rl">Gov't Oil Take</span><span class="rv">66.8%</span></div>
+    </div>
+
+    <div class="ref-note">
+      <strong>Note:</strong> Official projections sourced from KSA Ministry of Finance FY2026 Budget Statement. Reference panel is static and for comparison only. Your simulator inputs drive all computed outputs.
+    </div>
+  </div>
+
+</div>
+
+<script>
+const YEARS = [2025,2026,2027,2028,2029,2030];
+const FX = 3.75;
+const TAKE = 0.668;
+
+const DEFAULTS = {
+  oilPrice: [68.3, 65, 65, 65, 65, 65],
+  production: [3.45, 3.45, 3.50, 3.50, 3.55, 3.55],
+  capex: [0, 0, 0, 0, 0, 0],
+  nonOilGrowth: 6,
+  expGrowth: 0,
+  gdpGrowth: 2.5,
+  startDebt: 1540,
+  startGDP: 4620
+};
+
+let chartRevExp = null;
+let chartDebtGDP = null;
+
+function buildYearInputs(containerId, defaults, step, decimals){
+  const c = document.getElementById(containerId);
+  c.innerHTML = '';
+  YEARS.forEach((y,i) => {
+    const d = document.createElement('div');
+    d.className = 'year-input';
+    d.innerHTML = `<span>${y}</span><input type="number" id="${containerId}_${y}" value="${defaults[i]}" step="${step}">`;
+    c.appendChild(d);
+  });
+}
+
+function init(){
+  buildYearInputs('oilPriceInputs', DEFAULTS.oilPrice, 1, 1);
+  buildYearInputs('prodInputs', DEFAULTS.production, 0.05, 2);
+  buildYearInputs('capexInputs', DEFAULTS.capex, 10, 0);
+}
+
+function resetDefaults(){
+  buildYearInputs('oilPriceInputs', DEFAULTS.oilPrice, 1, 1);
+  buildYearInputs('prodInputs', DEFAULTS.production, 0.05, 2);
+  buildYearInputs('capexInputs', DEFAULTS.capex, 10, 0);
+  document.getElementById('nonOilGrowth').value = DEFAULTS.nonOilGrowth;
+  document.getElementById('expGrowth').value = DEFAULTS.expGrowth;
+  document.getElementById('gdpGrowth').value = DEFAULTS.gdpGrowth;
+  document.getElementById('startDebt').value = DEFAULTS.startDebt;
+  document.getElementById('startGDP').value = DEFAULTS.startGDP;
+  document.getElementById('outputBody').innerHTML = '<tr><td colspan="10" style="text-align:center;color:var(--muted);padding:32px">Run simulation to see projections</td></tr>';
+  if(chartRevExp){chartRevExp.destroy();chartRevExp=null}
+  if(chartDebtGDP){chartDebtGDP.destroy();chartDebtGDP=null}
+  document.getElementById('insBreakeven').textContent = '—';
+  document.getElementById('insSensitivity').textContent = '—';
+  document.getElementById('insDebtGDP').textContent = '—';
+  document.getElementById('insCumDef').textContent = '—';
+  document.getElementById('sensitivityBar').querySelector('.text').innerHTML = 'Enter inputs and press <strong>Run Simulation</strong> to see results.';
+}
+
+function getYearVal(containerId, year){
+  return parseFloat(document.getElementById(`${containerId}_${year}`).value) || 0;
+}
+
+function fmt(v){return v.toFixed(1)}
+function fmtPct(v){return (v*100).toFixed(1)+'%'}
+
+function calculate(){
+  const gNonOil = parseFloat(document.getElementById('nonOilGrowth').value)/100;
+  const gExp = parseFloat(document.getElementById('expGrowth').value)/100;
+  const gGDP = parseFloat(document.getElementById('gdpGrowth').value)/100;
+  let debt = parseFloat(document.getElementById('startDebt').value);
+  let gdp = parseFloat(document.getElementById('startGDP').value);
+
+  const BASE_NONOIL = 501;
+  const BASE_EXP = 1336;
+
+  const rows = [];
+  let nonOil = BASE_NONOIL;
+  let exp = BASE_EXP;
+  let cumDef = 0;
+
+  YEARS.forEach((y, i) => {
+    const price = getYearVal('oilPriceInputs', y);
+    const prod = getYearVal('prodInputs', y);
+    const capex = getYearVal('capexInputs', y);
+
+    // Oil Revenue
+    const oilRev = price * prod * FX * TAKE;
+
+    // Non-Oil Revenue
+    if(i > 0) nonOil = nonOil * (1 + gNonOil);
+    const nonOilRev = nonOil;
+
+    // Total Revenue
+    const totalRev = oilRev + nonOilRev;
+
+    // Expenditure
+    if(i > 0) exp = exp * (1 + gExp);
+    const expenditure = exp;
+
+    // Total Spend = Expenditure + Capex
+    const totalSpend = expenditure + capex;
+
+    // Deficit (positive = surplus, negative = deficit)
+    const deficit = totalRev - totalSpend;
+    cumDef += deficit;
+
+    // Debt
+    if(deficit < 0){
+      debt = debt + Math.abs(deficit);
+    } else {
+      debt = Math.max(0, debt - deficit);
+    }
+
+    // GDP
+    if(i > 0) gdp = gdp * (1 + gGDP);
+    const debtGDP = debt / gdp;
+
+    rows.push({year:y, oilRev, nonOilRev, totalRev, expenditure, capex, totalSpend, deficit, debt, gdp, debtGDP});
+  });
+
+  // Render table
+  const tbody = document.getElementById('outputBody');
+  tbody.innerHTML = '';
+  rows.forEach(r => {
+    const tr = document.createElement('tr');
+    const defClass = r.deficit >= 0 ? 'deficit-pos' : 'deficit-neg';
+    const debtClass = r.debtGDP > 0.40 ? 'debt-warn' : '';
+    tr.className = debtClass;
+    tr.innerHTML = `
+      <td>${r.year}</td>
+      <td>${fmt(r.oilRev)}</td>
+      <td>${fmt(r.nonOilRev)}</td>
+      <td>${fmt(r.totalRev)}</td>
+      <td>${fmt(r.expenditure)}</td>
+      <td>${fmt(r.capex)}</td>
+      <td>${fmt(r.totalSpend)}</td>
+      <td class="${defClass}">${r.deficit >= 0 ? '+' : ''}${fmt(r.deficit)}</td>
+      <td>${fmt(r.debt)}</td>
+      <td>${fmtPct(r.debtGDP)}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  // Insights
+  // $1 sensitivity (using 2026 production)
+  const prod2026 = getYearVal('prodInputs', 2026);
+  const sensitivity = prod2026 * FX * TAKE;
+  document.getElementById('insSensitivity').textContent = `SAR ${sensitivity.toFixed(1)} bn`;
+
+  // Break-even oil price for 2026
+  const r26 = rows[1];
+  const neededOilRev = r26.totalSpend - r26.nonOilRev;
+  const breakeven = neededOilRev / (prod2026 * FX * TAKE);
+  document.getElementById('insBreakeven').textContent = `$${breakeven.toFixed(1)}/bbl`;
+
+  // 2030 Debt/GDP
+  const last = rows[rows.length - 1];
+  document.getElementById('insDebtGDP').textContent = fmtPct(last.debtGDP);
+
+  // Cumulative deficit
+  document.getElementById('insCumDef').textContent = `${cumDef >= 0 ? '+' : ''}${fmt(cumDef)} SAR bn`;
+
+  // Sensitivity bar
+  document.getElementById('sensitivityBar').querySelector('.text').innerHTML =
+    `Each <strong>$1</strong> change in oil price changes revenue by <strong>SAR ${sensitivity.toFixed(1)} bn</strong> (at 2026 production of ${prod2026} bn bbl). Break-even oil price for 2026 is <strong>$${breakeven.toFixed(1)}/bbl</strong>.`;
+
+  // Charts
+  renderCharts(rows);
+}
+
+function renderCharts(rows){
+  const labels = rows.map(r => r.year);
+
+  // Chart 1: Revenue vs Total Spend
+  if(chartRevExp) chartRevExp.destroy();
+  const ctx1 = document.getElementById('chartRevExp').getContext('2d');
+  chartRevExp = new Chart(ctx1, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Total Revenue',
+          data: rows.map(r => r.totalRev.toFixed(1)),
+          backgroundColor: 'rgba(46,125,50,0.7)',
+          borderRadius: 4,
+          barPercentage: 0.6,
+        },
+        {
+          label: 'Total Spend',
+          data: rows.map(r => r.totalSpend.toFixed(1)),
+          backgroundColor: 'rgba(198,40,40,0.65)',
+          borderRadius: 4,
+          barPercentage: 0.6,
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {position:'bottom', labels:{font:{family:'DM Sans',size:11},padding:16}},
+      },
+      scales: {
+        y: {
+          beginAtZero: false,
+          ticks: {font:{family:'DM Sans',size:10}, callback: v => v.toLocaleString()},
+          grid: {color:'#f0eeea'}
+        },
+        x: {ticks:{font:{family:'DM Sans',size:11}}, grid:{display:false}}
+      }
+    }
+  });
+
+  // Chart 2: Debt/GDP line
+  if(chartDebtGDP) chartDebtGDP.destroy();
+  const ctx2 = document.getElementById('chartDebtGDP').getContext('2d');
+  chartDebtGDP = new Chart(ctx2, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Debt / GDP',
+        data: rows.map(r => (r.debtGDP * 100).toFixed(1)),
+        borderColor: 'var(--accent)',
+        backgroundColor: 'rgba(13,110,63,0.08)',
+        fill: true,
+        tension: 0.35,
+        pointRadius: 5,
+        pointBackgroundColor: rows.map(r => r.debtGDP > 0.40 ? '#c62828' : '#0d6e3f'),
+        pointBorderColor: '#fff',
+        pointBorderWidth: 2,
+        borderWidth: 2.5,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {display:false},
+        annotation: {}
+      },
+      scales: {
+        y: {
+          ticks: {font:{family:'DM Sans',size:10}, callback: v => v + '%'},
+          grid: {color:'#f0eeea'}
+        },
+        x: {ticks:{font:{family:'DM Sans',size:11}}, grid:{display:false}}
+      }
+    }
+  });
+}
+
+// Init on load
+init();
+</script>
+
+</body>
+</html>
